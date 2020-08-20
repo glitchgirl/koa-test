@@ -24,5 +24,5 @@ function *sendID() {
    this.body = 'The id you specified is ' + this.params.id;
 }
 app.use(_.routes()); //Use the routes defined using the router
-console.log(_.routes);
+console.log(_.routes());
 app.listen(3000);
