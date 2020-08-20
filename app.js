@@ -1,34 +1,27 @@
-var koa = require('koa');
-var app = new koa();
- 
-app.use(function* (next) {
-   //do something before yielding to next generator function 
-   
-   //in line which will be 1st event in downstream
-   console.log("1");
-   yield next;
- 
-   //do something when the execution returns upstream, 
-   //this will be last event in upstream
-   console.log("2");
-});
-app.use(function* (next) {
-   // This shall be 2nd event downstream
-   console.log("3");
-   yield next;
- 
-   // This would be 2nd event upstream
-   console.log("4");
-});
-app.use(function* () { 
-   // Here it would be last function downstream
-   console.log("5");
-   
-   // Set response body
-   this.body = "Hello Generators";
+const Koa = require('koa');
+const app = new Koa();
 
-   // First event of upstream (from the last to first)
-   console.log("6");
+// logger
+
+app.use(async (ctx, next) => {
+  await next();
+  const rt = ctx.response.get('X-Response-Time');
+  console.log(`${ctx.method} ${ctx.url} - ${rt}`);
+});
+
+// x-response-time
+
+app.use(async (ctx, next) => {
+  const start = Date.now();
+  await next();
+  const ms = Date.now() - start;
+  ctx.set('X-Response-Time', `${ms}ms`);
+});
+
+// response
+
+app.use(async ctx => {
+  ctx.body = 'Hello World';
 });
 
 app.listen(3000);
